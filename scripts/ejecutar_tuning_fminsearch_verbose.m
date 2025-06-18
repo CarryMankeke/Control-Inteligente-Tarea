@@ -26,8 +26,8 @@
 clc; clear; close all;
 
 %% Load trained NARX and data for reference generation
-load('narx_mimo_nets.mat', 'netCL');  % closed-loop NARX network
-load('quadrotorData.mat', 'U', 'Y');  % original dataset (U not used here)
+load(fullfile('processed','narx_mimo_nets.mat'), 'netCL');  % closed-loop NARX network
+load(fullfile('data','processed','quadrotorData.mat'), 'U', 'Y');
 
 %% MRAC tuning parameters
 delay       = 3;             % number of delays used in NARX
@@ -53,6 +53,10 @@ disp('🔧 Tuning MRAC learning rates with fminsearch...');
 %% Display results
 fprintf('\n🌟 Optimal MRAC etas found: [%s]\n', num2str(mejor_eta));
 fprintf('   Closed-loop MSE = %.6f\n', mejor_mse);
+
+outFile = fullfile('result','log','mejor_eta.mat');
+save(outFile, 'mejor_eta', 'mejor_mse');
+fprintf('Saved tuning results to %s\n', outFile);
 
 %% Objective function: closed-loop MSE for a given eta vector
 function mse_total = simula_y_retorna_mse(narxCL, y_ref, delay, eta_vect)

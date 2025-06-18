@@ -55,8 +55,8 @@ for dTry = delayList
 end
 
 %% Save optimal model and parameters
-save('best_narx_gridsearch.mat', 'narx_net_opt', 'd_opt', 'H_opt', 'bestValMSE');
-
+outFile = fullfile('data','processed','best_narx_gridsearch.mat');
+save(outFile, 'narx_net_opt', 'd_opt', 'H_opt', 'bestValMSE');
 %% Report results
 fprintf('\n✅ Grid search complete.\n');
 fprintf('   Optimal NARX: d = %d, H = %d → validation MSE = %.6f\n', ...

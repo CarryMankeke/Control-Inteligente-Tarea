@@ -57,5 +57,6 @@ function [netSP, netCL, trainPerf, valPerf] = bloque2_narx_train(uTrain, yTrain,
     netCL.name = 'NARX MIMO Closed-Loop';
 
     %% Save models and performance metrics
-    save('narx_mimo_nets.mat', 'netSP', 'netCL', 'trainPerf', 'valPerf');
+    outFile = fullfile('data','processed','narx_mimo_nets.mat');
+    save(outFile, 'netSP', 'netCL', 'trainPerf', 'valPerf');
 end

@@ -25,6 +25,12 @@
 clc; clear; close all;
 rng(42);   % ensure full-pipeline reproducibility
 
+addpath(fullfile(pwd, 'scripts'));
+addpath(fullfile(pwd, 'fuctions'));
+addpath(fullfile(pwd, 'data', 'raw'));
+addpath(fullfile(pwd, 'data', 'processed'));
+addpath(fullfile(pwd, 'result', 'log'));
+addpath(fullfile(pwd, 'result', 'figures'));
 
 %% STEP 0: Generate 'quadrotorData.mat' if missing
 

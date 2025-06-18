@@ -49,6 +49,7 @@ function crear_quadrotorData()
     Y = [Pos(1:N, :)'; Euler(1:N, :)']; % [6 × N]
 
     %% Save the synchronized dataset
-    save('quadrotorData.mat', 'U', 'Y');
+    outFile = fullfile('data','processed','quadrotorData.mat');
+    save(outFile, 'U', 'Y');
     fprintf('✔ Saved ''quadrotorData.mat'' with U(4×%d) and Y(6×%d)\n', N, N);
 end
