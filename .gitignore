@@ -1,0 +1,52 @@
+# -------------------------
+# 🧠 Archivos temporales MATLAB
+# -------------------------
+*.asv
+*.m~
+*.autosave
+*.mlx.autosave
+*.slx.r*
+*.mdl.r*
+
+# -------------------------
+# 🔒 Archivos compilados o protegidos
+# -------------------------
+*.p         # Archivos protegidos
+*.mex*      # MEX compilados
+
+# -------------------------
+# 📦 Archivos de empaquetado
+# -------------------------
+*.mlappinstall
+*.mltbx
+*.ctf
+
+# -------------------------
+# 🧰 Archivos generados por herramientas
+# -------------------------
+helpsearch*/
+slprj/
+sccprj/
+codegen/
+.buildtool/
+*.slxc
+
+# -------------------------
+# ☁️ Archivos específicos de MATLAB Drive
+# -------------------------
+.MATLABDriveTag
+
+# -------------------------
+# 📁 Carpetas específicas de tu proyecto
+# -------------------------
+data/
+results/
+resources/
+*.mat
+*.csv
+*.log
+*.zip
+*.bak
+*.fig
+*.png
+*.jpg
