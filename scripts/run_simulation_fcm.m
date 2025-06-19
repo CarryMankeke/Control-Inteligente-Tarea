@@ -2,7 +2,7 @@
 function run_simulation_fcm(cfg)
     % Paths
     logDir  = fullfile(cfg.paths.log, 'fcm');
-    outFile = fullfile(logDir,  'metrics_fcm.mat');
+    outFile = fullfile(logDir,  'metrics_fcm_weighted.mat');
 
     % 0) Skip if already done
     if isfile(outFile)
@@ -20,8 +20,8 @@ function run_simulation_fcm(cfg)
     nIn     = size(Ssplit.u_train{1},1);
     nOut    = size(y_ref,1);
 
-    % 3) Load FCM–NARX models
-    fcmFile = fullfile(cfg.paths.proc,'fcm','fcm_narx.mat');
+    % 3) Load weighted FCM–NARX models
+    fcmFile = fullfile(cfg.paths.proc,'fcm','fcm_narx_weighted.mat');
     load(fcmFile,'nets','centers','U');
     C = numel(nets);
 
@@ -51,7 +51,7 @@ function run_simulation_fcm(cfg)
         end
     end
 
-    % 8) Closed-loop simulation with FCM–NARX predictions
+    % 8) Closed-loop simulation with TS-Sugeno fusion
     for t = delay+1 : T
         % (a) Build regressor for fuzzy membership
         xk = [uHist(:); yHist(:)];
@@ -60,7 +60,7 @@ function run_simulation_fcm(cfg)
         % (b) Fuse per-cluster predictions
         y_t = zeros(nOut,1);
         for j = 1:C
-            if isempty(nets{j}) || mu(j)==0
+            if isempty(nets{j})
                 continue
             end
             [yjSeq, Xi{j}, Ai{j}] = nets{j}(con2seq(uHist), Xi{j}, Ai{j});
