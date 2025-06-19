@@ -49,5 +49,5 @@ function cfg = config()
 %% FCM parameters
     cfg.fcm.numClusters    = 5;    % Fuzzy Clusters Number
     cfg.fcm.fuzzyExponent  = 2.0;  
-    cfg.fcm.memThreshold   = 0.6;  % Membership threshold for narx training
+    cfg.fcm.memThreshold   = 0.4;  % Membership threshold for narx training
 end
