@@ -10,47 +10,52 @@ function run_train_fcm_narx(cfg)
         return
     end
 
-    % 1) Load per-flight splits
-    S = load(fullfile(cfg.paths.proc, 'perFlightSplits.mat'), ...
-             'u_train', 'y_train');
-    u_train = S.u_train;   % 1×F cell array of 4×N_f matrices
-    y_train = S.y_train;   % 1×F cell array of 6×N_f matrices
+    % 1) Load per‐flight splits
+    S = load(fullfile(cfg.paths.proc, 'perFlightSplits.mat'), 'u_train', 'y_train');
+    u_train = S.u_train;  % 1×F cell array of 4×N_f
+    y_train = S.y_train;  % 1×F cell array of 6×N_f
 
-    % 2) Build global regressor matrix X for FCM
+    % 2) Build regressor matrix X for FCM
     delay = cfg.narx.delays(end);
-    X     = extractRegressors(u_train, y_train, delay);  % D*d × N_total
+    X     = extractRegressors(u_train, y_train, delay);  % (4+6)*delay × N_total
 
-    % 3) Perform FCM clustering
+    % 3) Perform FCM
     [centers, U] = performFCM(X, cfg.fcm.numClusters, cfg.fcm.fuzzyExponent);
-    % centers: C×D*d, U: C×N_total
+    % U is C×N_total
 
-    % 4) Concatenate all data for weighted training
+    % 4) Concatenate all data
     bigU = horzcat(u_train{:});  % 4×N_total
     bigY = horzcat(y_train{:});  % 6×N_total
+    N    = size(bigU,2);
 
-    % 5) Train one weighted NARX per fuzzy cluster
+    % 5) Train one NARX per cluster via replication
     nets    = cell(cfg.fcm.numClusters,1);
-    metrics = struct('trainMSE',[],'valMSE',[]);
+    metrics = struct('trainMSE',{},'valMSE',{});
+    factor  = cfg.fcm.repeatFactor;  % e.g. 10
+
     for j = 1:cfg.fcm.numClusters
-        % normalize membership weights for this cluster
-        w = U(j,:) / sum(U(j,:));  % 1×N_total
+        mu = U(j,:);                 % 1×N_total
+        reps = max(1, round(factor * mu));  % 1×N_total
+        % replicate each column k reps(k) times
+        Ucells = arrayfun(@(k) repmat(bigU(:,k), 1, reps(k)), 1:N, 'uni',false);
+        Ycells = arrayfun(@(k) repmat(bigY(:,k), 1, reps(k)), 1:N, 'uni',false);
+        uRep   = [Ucells{:}];        % 4×sum(reps)
+        yRep   = [Ycells{:}];        % 6×sum(reps)
 
-        % train with sample weights
+        % Train NARX on replicated data
         tempFile = fullfile(outDir, sprintf('narx_net_cl_%d.mat', j));
-        [~, netCL, trMSE, valMSE] = train_narx_network_weighted( ...
-            bigU, bigY, bigU, bigY, ...
-            delay, cfg.narx.hiddenUnits(end), ...
-            w, tempFile);
+        [~, netCL, trMSE, valMSE] = train_narx_network( ...
+            uRep, yRep, uRep, yRep, ...
+            delay, cfg.narx.hiddenUnits(end), tempFile);
 
-        nets{j}          = netCL;
+        nets{j}            = netCL;
         metrics(j).trainMSE = trMSE;
         metrics(j).valMSE   = valMSE;
-        fprintf(' Trained weighted NARX for cluster %d → trainMSE=%.6f, valMSE=%.6f\n', ...
-                j, trMSE, valMSE);
+        fprintf('  Cluster %d: trainMSE=%.6f, valMSE=%.6f\n', j, trMSE, valMSE);
     end
 
-    % 6) Save everything
-    if ~exist(outDir, 'dir')
+    % 6) Save results
+    if ~exist(outDir,'dir')
         mkdir(outDir);
     end
     save(outFile, 'nets', 'centers', 'U', 'metrics');
