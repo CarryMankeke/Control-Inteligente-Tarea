@@ -24,19 +24,22 @@ function cfg = config()
     %% Data split ratios
     cfg.dataSplit.trainRatio = 0.70;
     cfg.dataSplit.valRatio   = 0.15;
+    
+    %cfg.sim.trainFlights = 1:20;
+    %cfg.sim.trainFlights = 1:2;
 
-    cfg.sim.trainFlights = 1:20;
+    cfg.sim.trainFlights = 1;
 
     %% NARX grid-search hyperparameters
-    cfg.narx.delays      = [2, 3, 4];
-    cfg.narx.hiddenUnits = [10, 20];
+    cfg.narx.delays      = 3; %[2, 3, 4];
+    cfg.narx.hiddenUnits = 10; %[10, 20]; 
 
     %% MRAC initial etas (for fminsearch) and variant
-    cfg.mrac.etaInit = [0.051683, 0.049385, 0.051669, 0.072188, 0.072335, 0.10274];
+    cfg.mrac.etaInit = [0.0516829444444445,	0.0493846222222222, 0.0516687888888889,	0.0721882777777778,	0.0723348888888889,	0.102740777777778];
     cfg.mrac.variant = 'normalized2';
 
     %% Reference flight (use last flight by default)
-    cfg.sim.flightIdx = 54;
+    cfg.sim.flightIdx = 2;
 
     %% Reproducibility
     cfg.seed = 42;
@@ -44,11 +47,11 @@ function cfg = config()
     %% fminsearch options
     cfg.tuning.opts = optimset('Display','iter', ...
                                'TolFun',1e-5, 'TolX',1e-5, ...
-                               'MaxIter',10,  'MaxFunEvals',30);
+                               'MaxIter',1,  'MaxFunEvals',1); % 10 , 30
 
 %% FCM parameters
     cfg.fcm.numClusters    = 5;    % Fuzzy Clusters Number
     cfg.fcm.fuzzyExponent  = 2.0;  % m exponent in FCM
-    cfg.fcm.repeatFactor  = 10;   % optional: max replicates per sample
+    cfg.fcm.repeatFactor  = 1;   % optional: max replicates per sample (10 usado)
 
 end

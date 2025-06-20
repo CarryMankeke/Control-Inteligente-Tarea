@@ -33,7 +33,7 @@ function logs = loadAllLogs(logDir)
     logs.metrics_cl   = MC.metrics;
 
     % Open-loop
-    OL = load(fullfile(logDir, 'narx_openloop.mat'), 'y_test', 'y_pred_open');
+    OL = load(fullfile(logDir, ''), 'y_test', 'y_pred_open');
     MO = load(fullfile(logDir, 'metrics_openloop.mat'), 'metrics_open');
     logs.y_test       = OL.y_test;
     logs.y_pred_open  = OL.y_pred_open;
