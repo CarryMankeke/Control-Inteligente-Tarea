@@ -16,7 +16,7 @@
 %       E_hist        — tracking error history
 %       W_hist        — weight evolution history
 %       metrics_cl    — closed-loop metrics struct
-%       y_test        — test outputs
+%       y_test_aligned        — test outputs
 %       y_pred_open   — open-loop predictions
 %       metrics_open  — open-loop metrics struct
 %
@@ -33,9 +33,9 @@ function logs = loadAllLogs(logDir)
     logs.metrics_cl   = MC.metrics;
 
     % Open-loop
-    OL = load(fullfile(logDir, ''), 'y_test', 'y_pred_open');
+    OL = load(fullfile(logDir, 'narx_openloop.mat'), 'y_test_aligned', 'y_pred_open');
     MO = load(fullfile(logDir, 'metrics_openloop.mat'), 'metrics_open');
-    logs.y_test       = OL.y_test;
+    logs.y_test       = OL.y_test_aligned;
     logs.y_pred_open  = OL.y_pred_open;
     logs.metrics_open = MO.metrics_open;
 end

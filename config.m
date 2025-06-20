@@ -39,7 +39,7 @@ function cfg = config()
     cfg.mrac.variant = 'normalized2';
 
     %% Reference flight (use last flight by default)
-    cfg.sim.flightIdx = 2;
+    cfg.sim.flightIdx = 54;
 
     %% Reproducibility
     cfg.seed = 42;

@@ -61,24 +61,44 @@ function run_simulation(cfg)
     metrics = computeCost(E_hist, U_hist, W_hist);
     save(fullfile(cfg.paths.log,'metrics_summary.mat'),'metrics');
 
-%% --- 7) Open-loop NARX on test data ---
-netOpen = load(narxFile,'netSP').netSP;
-[Xt,Xi,Ai,~] = preparets(netOpen, ...
-    con2seq(u_test), {}, con2seq(y_test));
-Yt = netOpen(Xt,Xi,Ai);
-y_pred_open = cell2mat(Yt);
+    %% --- 7) Open-loop NARX on test data ---
+    % Load the single-point NARX model for open-loop evaluation
+    netOpen = load(narxFile, 'netSP').netSP;
+    
+    % Prepare time series input and target sequences
+    [Xt, Xi, Ai, ~] = preparets(...
+        netOpen, ...
+        con2seq(u_test), ...    % convert input to cell sequence
+        {}, ...                 % no initial input delay states
+        con2seq(y_test) ...     % convert target to cell sequence
+    );
+    
+    % Run the network in open-loop to obtain predictions
+    Yt = netOpen(Xt, Xi, Ai);
+    y_pred_open = cell2mat(Yt);
+    
+    % --- Align the test data by the NARX delay ---
+    delay = narxDelay;  
+    % Discard the initial samples corresponding to the model delay
+    y_test_aligned = y_test(:, delay+1 : end);
+    
+    % Verify that prediction and test lengths match
+    assert( size(y_pred_open, 2) == size(y_test_aligned, 2), ...
+        'Dimension mismatch after alignment.' ...
+    );
+    
+    % Compute the open-loop error
+    E_open = y_test_aligned - y_pred_open;
+    
+    % --- 8) Compute & save open-loop metrics and raw time series ---
+    % Calculate performance metrics for open-loop error
+    metrics_open = computeCost(E_open, [], []);
+    
+    % Save only the metrics summary
+    save( fullfile(cfg.paths.log, 'metrics_openloop.mat'), 'metrics_open' );
+    
+    % Save the raw aligned test and prediction series for plotting
+    openLoopFile = fullfile(cfg.paths.log, 'narx_openloop.mat');
+    save( openLoopFile, 'y_test_aligned', 'y_pred_open' );
 
-% --- Alineación por retraso ---
-delay = narxDelay;  % el mismo d_opt que usaste para entrenar
-y_test_aligned = y_test(:, delay+1 : end);
-
-% Verificación de tamaños
-assert( size(y_pred_open,2) == size(y_test_aligned,2), ...
-    'Dimensiones tras recorte no coinciden.' );
-
-% Cálculo del error en abierto
-E_open = y_test_aligned - y_pred_open;
-
-metrics_open = computeCost(E_open, [], []);
-save(fullfile(cfg.paths.log,'metrics_openloop.mat'),'metrics_open');
 end
